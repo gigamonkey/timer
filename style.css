@@ -21,7 +21,7 @@ body {
   width: 100vw;
   height: 100vh;
   background: rgb(0, 16, 0);
-  font-size: 30vh;
+  font-size: 30vmin;
   color: var(--inactive);
 }
 
@@ -37,8 +37,13 @@ body > * {
   align-items: center;
   width: 100%;
   color: var(--inactive);
-  font-size: 60%;
   user-select: none;
+}
+
+#input svg {
+  width: var(--buttonSize);
+  height: var(--buttonSize);
+  vertical-align: middle;
 }
 
 #buttons button {
