@@ -1,11 +1,13 @@
 const $ = (q) => document.querySelector(q);
 
+let TICK = (1000 * 60) / 64;
+
 let time = 0;
 let timer;
 
 const fmt = (t) => {
-  const minutes = Math.floor(t / 60);
-  const seconds = Math.round(t % 60);
+  const minutes = Math.floor(t / 64);
+  const seconds = Math.round(t % 64);
 
   const mm = (minutes+'').padStart(2, '0');
   const ss = (seconds+'').padStart(2, '0');
@@ -14,14 +16,17 @@ const fmt = (t) => {
 
 const countdown = () => {
   const start = Date.now();
-  const end = Date.now() + time * 1000;
+  const end = Date.now() + time * TICK;
 
   const update = () => {
     const now = Date.now();
     let seconds = 0;
     if (now < end) {
-      seconds = Math.round((end - now) / 1000);
-      setTimeout(update, 1000);
+      seconds = Math.round((end - now) / TICK);
+      setTimeout(update, TICK);
+    }
+    if (seconds === 0) {
+      playBeep();
     }
     $('#clock').innerText = fmt(seconds)
     updateButtonDisplay(seconds);
@@ -56,11 +61,14 @@ const buttonHandler = (e) => {
   }
 };
 
-for (let i = 0; i < 13; i++) {
+for (let i = 0; i < 12; i++) {
   const b = document.createElement('button');
   b.dataset.seconds = 2 ** i;
   b.onclick = buttonHandler;
-  $('#buttons').prepend(b)
+  if (Number(b.dataset.seconds) === 64) {
+    $('#buttons').prepend(document.createTextNode(':'));
+  }
+  $('#buttons').prepend(b);
 }
 
 /*
@@ -84,3 +92,14 @@ for (let i = 0; i < 2; i++) {
 $('#left').onclick = () => changeTime(t => t * 2);
 $('#right').onclick = () => changeTime(t => t / 2);
 $('#clock').onclick = countdown;
+
+
+const playBeep = () => {
+  let context = new (window.AudioContext || window.webkitAudioContext)();
+  let osc = context.createOscillator(); // an Oscillator is a source node that generates a periodic waveform
+  osc.type = 'sine'; // type of waveform
+  osc.frequency.value = 440; // frequency. You can experiment with the value
+  osc.connect(context.destination); // connect oscillator to the speakers
+  osc.start();
+  osc.stop(10);
+}
