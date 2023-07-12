@@ -20,23 +20,28 @@ body {
   color: #0f0;
 }
 
-#buttons {
+#controls {
   display: flex;
   flex-direction: row;
   gap: 10px;
   justify-content: center;
   align-items: center;
   width: 100%;
+  color: grey;
+  font-size: 60%;
+  user-select: none;
 }
 
-button {
+
+#buttons button {
   border: 1px solid black;
   border-radius: 50%;
   width: 10vh;
   height: 10vh;
   background: grey;
+  vertical-align: middle;
 }
 
-button.selected {
+#buttons button.selected {
   background: #0f0;;
 }
