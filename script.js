@@ -14,31 +14,67 @@ const fmt = (t) => {
   return `${mm}:${ss}`;
 };
 
-const countdown = () => {
-  const start = Date.now();
-  const end = Date.now() + time * TICK;
+const start = () => {
 
-  const update = () => {
-    const now = Date.now();
-    let seconds = 0;
-    if (now < end) {
-      seconds = Math.round((end - now) / TICK);
-      setTimeout(update, TICK);
+  if (!timer) {
+    playBeep(110, 0.25);
+    const start = Date.now();
+    const end = Date.now() + time * TICK;
+    $('#left').style.display = 'none';
+    $('#right').style.display = 'none';
+    $('#clock').classList.add('active');
+    $('#start').classList.add('active');
+    $('#pause').classList.remove('active');
+
+    const update = () => {
+      const now = Date.now();
+      if (now < end) {
+        time = Math.round((end - now) / TICK);
+        displayTime(time);
+      } else {
+        stop();
+        playBeep(440, 0.75);
+      }
     }
-    if (seconds === 0) {
-      playBeep();
-    }
-    $('#clock').innerText = fmt(seconds)
-    updateButtonDisplay(seconds);
+    timer = setInterval(update, TICK);
   }
-  update();
+};
+
+const stop = () => {
+  clearInterval(timer);
+  timer = undefined;
+  $('#left').style.display = 'inline';
+  $('#right').style.display = 'inline';
+  $('#clock').classList.remove('active');
+  $('#start').classList.remove('active');
+  $('#pause').classList.remove('active');
+  time = 0;
+  displayTime(0);
+};
+
+const pause = () => {
+  if (timer) {
+    $('#start').classList.remove('active');
+    $('#pause').classList.add('active');
+    clearInterval(timer);
+    timer = undefined;
+  } else if ($('#pause').classList.contains('active')) {
+    start();
+  }
 };
 
 const changeTime = (fn) => {
   time = fn(time);
-  $('#clock').innerText = fmt(time);
-  updateButtonDisplay(time);
+  displayTime(time);
 }
+
+const displayTime = (seconds) => {
+  $('#clock').innerText = fmt(seconds)
+  if (seconds > 0) {
+    $('#clock').classList.add('active');
+  }
+  updateButtonDisplay(seconds);
+};
 
 const updateButtonDisplay = (t) => {
   let left = t;
@@ -54,10 +90,12 @@ const updateButtonDisplay = (t) => {
 }
 
 const buttonHandler = (e) => {
-  if (e.target.classList.contains('selected')) {
-    changeTime(t => t - Number(e.target.dataset.seconds));
-  } else {
-    changeTime(t => t + Number(e.target.dataset.seconds));
+  if (!timer) {
+    if (e.target.classList.contains('selected')) {
+      changeTime(t => t - Number(e.target.dataset.seconds));
+    } else {
+      changeTime(t => t + Number(e.target.dataset.seconds));
+    }
   }
 };
 
@@ -71,35 +109,25 @@ for (let i = 0; i < 12; i++) {
   $('#buttons').prepend(b);
 }
 
-/*
-for (let i = 0; i < 6; i++) {
-  const b = document.createElement('button');
-  b.dataset.seconds = 2 ** i * 60;
-  b.onclick = buttonHandler;
-  $('#buttons').prepend(b)
-}
-
-$('#buttons').append(document.createTextNode(':'));
-
-for (let i = 0; i < 2; i++) {
-  const b = document.createElement('button');
-  b.dataset.seconds = 2 ** (-1 - i) * 60;
-  b.onclick = buttonHandler;
-  $('#buttons').append(b)
-  }
-*/
-
 $('#left').onclick = () => changeTime(t => t * 2);
 $('#right').onclick = () => changeTime(t => t / 2);
-$('#clock').onclick = countdown;
+$('#clock').onclick = start;
+$('#start').onclick = start;
+$('#stop').onclick = stop;
+$('#pause').onclick = pause;
 
+document.body.onclick = () => {
+  if (document.fullscreenElement === null) {
+    document.body.requestFullscreen();
+  }
+};
 
-const playBeep = () => {
+const playBeep = (freq, duration) => {
   let context = new (window.AudioContext || window.webkitAudioContext)();
-  let osc = context.createOscillator(); // an Oscillator is a source node that generates a periodic waveform
-  osc.type = 'sine'; // type of waveform
-  osc.frequency.value = 440; // frequency. You can experiment with the value
-  osc.connect(context.destination); // connect oscillator to the speakers
+  let osc = context.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  osc.connect(context.destination);
   osc.start();
-  osc.stop(10);
+  osc.stop(context.currentTime + duration);
 }
