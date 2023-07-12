@@ -18,12 +18,13 @@ const countdown = () => {
 
   const update = () => {
     const now = Date.now();
+    let seconds = 0;
     if (now < end) {
-      $('#clock').innerText = fmt(Math.round((end - now) / 1000))
+      seconds = Math.round((end - now) / 1000);
       setTimeout(update, 1000);
-    } else {
-      $('#clock').innerText = fmt(0);
     }
+    $('#clock').innerText = fmt(seconds)
+    updateButtonDisplay(seconds);
   }
   update();
 };
@@ -31,8 +32,11 @@ const countdown = () => {
 const changeTime = (fn) => {
   time = fn(time);
   $('#clock').innerText = fmt(time);
+  updateButtonDisplay(time);
+}
 
-  let left = time;
+const updateButtonDisplay = (t) => {
+  let left = t;
   $('#buttons').querySelectorAll('button').forEach(b => {
     const s = Number(b.dataset.seconds);
     if (s <= left) {
@@ -52,6 +56,14 @@ const buttonHandler = (e) => {
   }
 };
 
+for (let i = 0; i < 13; i++) {
+  const b = document.createElement('button');
+  b.dataset.seconds = 2 ** i;
+  b.onclick = buttonHandler;
+  $('#buttons').prepend(b)
+}
+
+/*
 for (let i = 0; i < 6; i++) {
   const b = document.createElement('button');
   b.dataset.seconds = 2 ** i * 60;
@@ -66,7 +78,8 @@ for (let i = 0; i < 2; i++) {
   b.dataset.seconds = 2 ** (-1 - i) * 60;
   b.onclick = buttonHandler;
   $('#buttons').append(b)
-}
+  }
+*/
 
 $('#left').onclick = () => changeTime(t => t * 2);
 $('#right').onclick = () => changeTime(t => t / 2);
