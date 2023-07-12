@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto Mono:wght@400;500&display=swap");
 
 :root {
   --inactive: grey;
@@ -12,7 +12,7 @@
 }
 
 body {
-  font-family: 'Roboto Mono';
+  font-family: "Roboto Mono";
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -51,7 +51,7 @@ body > * {
 }
 
 #buttons button.selected {
-  background: var(--active);;
+  background: var(--active);
 }
 
 #controls {
@@ -73,5 +73,5 @@ body > * {
 }
 
 .active {
-  color: var(--active);;
+  color: var(--active);
 }
