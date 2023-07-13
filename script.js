@@ -2,6 +2,7 @@ const $ = (q) => document.querySelector(q);
 
 let TICK = (1000 * 60) / 64;
 
+let MAX_TIME = 0xfff; // 2^12 - 1 bits of TICKs = 63:63 max value.
 let time = 0;
 let timer;
 
@@ -63,7 +64,7 @@ const pause = () => {
 };
 
 const changeTime = (fn) => {
-  time = fn(time);
+  time = fn(time) & MAX_TIME;
   displayTime(time);
 };
 
